@@ -17,29 +17,57 @@ interface UserProfile {
 export default function AccountPage() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [supabaseReady, setSupabaseReady] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user: authUser },
-        error,
-      } = await supabase.auth.getUser()
-
-      if (error || !authUser) {
-        redirect('/auth/login')
-      }
-
-      setUser({
-        id: authUser.id,
-        email: authUser.email || '',
-        user_metadata: authUser.user_metadata,
-      })
+    if (!supabase) {
+      setSupabaseReady(false)
       setLoading(false)
+      return
+    }
+
+    setSupabaseReady(true)
+
+    const getUser = async () => {
+      try {
+        const {
+          data: { user: authUser },
+          error,
+        } = await supabase.auth.getUser()
+
+        if (error || !authUser) {
+          redirect('/auth/login')
+        }
+
+        setUser({
+          id: authUser.id,
+          email: authUser.email || '',
+          user_metadata: authUser.user_metadata,
+        })
+      } catch (error) {
+        console.error('[v0] Account fetch error:', error)
+        redirect('/auth/login')
+      } finally {
+        setLoading(false)
+      }
     }
 
     getUser()
-  }, [supabase.auth])
+  }, [supabase])
+
+  if (!supabaseReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Authentication not configured</p>
+          <Link href="/" className="text-accent hover:underline">
+            Return to home
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
