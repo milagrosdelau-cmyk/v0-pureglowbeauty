@@ -8,6 +8,7 @@ import { useStore, languageNames, currencySymbols, type Language, type Currency 
 import { categories } from '@/lib/data/products'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AuthButton } from '@/components/auth-button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,7 +44,7 @@ export function Header() {
   }, [])
 
   const languages = Object.entries(languageNames) as [Language, string][]
-  const currencies: Currency[] = ['EUR', 'USD', 'GBP']
+  const currencies: Currency[] = ['EUR', 'USD', 'GBP', 'CNY']
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
@@ -237,12 +238,7 @@ export function Header() {
               </button>
 
               {/* Account */}
-              <button
-                className="hidden lg:flex p-2 hover:bg-secondary rounded-full transition-colors"
-                aria-label="Account"
-              >
-                <User size={20} />
-              </button>
+              <AuthButton />
 
               {/* Cart */}
               <button
