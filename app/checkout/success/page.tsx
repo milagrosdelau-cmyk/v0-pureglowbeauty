@@ -1,23 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function CheckoutSuccess() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
   const [orderNumber, setOrderNumber] = useState('')
 
   useEffect(() => {
     if (sessionId) {
-      // Generate order number from session ID
       const orderNum = sessionId.substring(0, 12).toUpperCase()
       setOrderNumber(orderNum)
-      
-      // Log successful purchase
       console.log('[v0] Purchase completed - Order:', orderNum)
       console.log('[v0] Session ID:', sessionId)
     }
@@ -62,5 +59,19 @@ export default function CheckoutSuccess() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutSuccess() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p>Loading order confirmation...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   )
 }
