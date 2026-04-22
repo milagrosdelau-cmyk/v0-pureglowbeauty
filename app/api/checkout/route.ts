@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-04-10',
-})
+let stripe: Stripe | null = null
+
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2024-04-10',
+  })
+}
 
 const currencyRates = {
   EUR: 1,
@@ -14,6 +18,13 @@ const currencyRates = {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.' },
+        { status: 500 }
+      )
+    }
+
     const body = await req.json()
     const { cartItems, currency = 'EUR', email } = body
 
@@ -41,8 +52,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/cancel`,
       customer_email: email,
       billing_address_collection: 'required',
       shipping_address_collection: {
@@ -56,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ sessionId: session.id })
   } catch (error) {
-    console.error('Checkout error:', error)
+    console.error('[v0] Checkout error:', error)
     return NextResponse.json({ error: 'Checkout failed' }, { status: 500 })
   }
 }
