@@ -4,13 +4,14 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, CreditCard, Lock, Truck, ShieldCheck, Check, Apple } from 'lucide-react'
+import { ArrowLeft, CreditCard, Lock, Truck, ShieldCheck, Check, Apple, AlertCircle } from 'lucide-react'
 import { StoreProvider, useStore } from '@/lib/store-context'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { CartDrawer } from '@/components/cart-drawer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { redirectToCheckout } from '@/lib/stripe'
 
 const countries = [
   'Spain', 'United States', 'United Kingdom', 'Germany', 'France', 'Italy',
@@ -20,21 +21,67 @@ const countries = [
 ]
 
 function CheckoutContent() {
-  const { cart, cartTotal, formatPrice, t } = useStore()
+  const { cart, cartTotal, formatPrice, currency, t } = useStore()
   const [step, setStep] = useState(1)
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | 'apple'>('card')
   const [isProcessing, setIsProcessing] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const shipping = cartTotal >= 75 ? 0 : 9.99
   const tax = cartTotal * 0.21
   const total = cartTotal + shipping + tax
 
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (paymentMethod !== 'card' || step !== 3) {
+      return
+    }
+
+    if (!email) {
+      setError('Please enter your email')
+      return
+    }
+
+    setIsProcessing(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartItems: cart,
+          currency,
+          email,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Checkout failed')
+      }
+
+      const { sessionId } = await response.json()
+      console.log('[v0] Stripe session created:', sessionId)
+      
+      await redirectToCheckout(sessionId)
+    } catch (err) {
+      console.error('[v0] Checkout error:', err)
+      setError(err instanceof Error ? err.message : 'Payment failed. Please try again.')
+      setIsProcessing(false)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (step < 3) {
       setStep(step + 1)
+    } else if (paymentMethod === 'card') {
+      handlePayment(e)
     } else {
+      // Simulate other payment methods
       setIsProcessing(true)
       setTimeout(() => {
         setIsProcessing(false)
@@ -141,7 +188,7 @@ function CheckoutContent() {
 
                   <div>
                     <label className="text-sm font-sans text-muted-foreground block mb-2">Email</label>
-                    <Input type="email" required className="h-12" placeholder="john@example.com" />
+                    <Input type="email" required className="h-12" placeholder="john@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
 
                   <div>
@@ -260,6 +307,13 @@ function CheckoutContent() {
                   className="space-y-6"
                 >
                   <h2 className="text-lg font-serif font-semibold">Review Your Order</h2>
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                  )}
 
                   {/* Order Items */}
                   <div className="bg-secondary/30 rounded-xl p-4 space-y-4">

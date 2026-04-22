@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Send, Sparkles, Bot, User } from 'lucide-react'
 import { useStore } from '@/lib/store-context'
+import { incoterms, regionShippingInfo } from '@/lib/data/incoterms'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -26,7 +27,8 @@ const botResponses: Record<string, string> = {
   cruelty: "At PureGlowBeauty, we're committed to ethical beauty. Here's what makes us different:\n\n🐰 **100% Cruelty-Free**: We never test on animals, and neither do our suppliers.\n\n🌿 **Vegan Friendly**: All our products are free from animal-derived ingredients.\n\n♻️ **Sustainable Packaging**: We use recycled and recyclable materials.\n\n🌍 **Eco-Conscious**: Our formulas are biodegradable and environmentally friendly.\n\nWould you like me to recommend some of our best-selling cruelty-free products?",
   order: "I can help you track your order! To check your order status:\n\n1. Go to your email and find your order confirmation\n2. Click the tracking link provided\n3. Or visit our Track Order page with your order number\n\nIf you need further assistance, our customer service team is available Monday-Friday, 9AM-6PM CET.\n\nIs there anything else I can help you with?",
   skin: "Let's find the perfect products for your skin! Tell me:\n\n**What's your skin type?**\n- Dry\n- Oily\n- Combination\n- Sensitive\n- Normal\n\nOnce you share this, I'll curate a personalized selection of our best products designed specifically for your skin's needs!",
-  default: "Thank you for your message! I'm here to help you discover the perfect products for your beauty routine. You can ask me about:\n\n• Finding your ideal shade\n• Product recommendations\n• Shipping information\n• Our cruelty-free commitment\n\nHow can I assist you today?"
+  shipping: `**International Shipping Information**\n\nWe ship to over 150 countries with our DAP, DDP, CIF, and FOB options:\n\n📦 **Delivery Times:**\n- Europe: 5-7 days (Standard)\n- North America: 7-10 days (Standard)\n- Asia-Pacific: 10-14 days (Standard)\n- Latin America: 12-15 days (Standard)\n\n💳 **Incoterms Available:**\n- **DAP** (Delivered at Place): You pay duties\n- **DDP** (Delivered Duty Paid): We pay everything\n- **CIF** (Cost, Insurance & Freight): For B2B bulk orders\n- **FOB** (Free on Board): Traditional B2B term\n\nWhich region are you shipping to? I can provide specific details!`,
+  default: "Thank you for your message! I'm here to help you discover the perfect products for your beauty routine. You can ask me about:\n\n• Finding your ideal shade\n• Product recommendations\n• Shipping and Incoterms\n• Our cruelty-free commitment\n• Tracking orders\n\nHow can I assist you today?"
 }
 
 export function AIChatbot() {
