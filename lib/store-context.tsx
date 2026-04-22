@@ -8,7 +8,7 @@ export type CartItem = {
   quantity: number
 }
 
-export type Currency = 'EUR' | 'USD' | 'GBP'
+export type Currency = 'EUR' | 'USD' | 'GBP' | 'CNY'
 export type Language = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'nl' | 'pl' | 'sv' | 'da' | 'no' | 'fi' | 'ru' | 'ja' | 'ko' | 'zh' | 'ar' | 'tr' | 'he' | 'th'
 
 type Translations = {
@@ -331,7 +331,7 @@ export const translations: Translations = {
     contact: 'Контакты',
     newsletter: 'Рассылка',
     subscribe: 'Подписаться',
-    welcomeChat: 'Привет! ✨ Добро пожаловать в PureGlowBeauty. Я ваш персональный бьюти-ассистент.',
+    welcomeChat: '��ривет! ✨ Добро пожаловать в PureGlowBeauty. Я ваш персональный бьюти-ассистент.',
     findTone: '🔍 Найти мой идеальный тон',
     skinConsult: '🌿 Консультация Cruelty-Free',
     orderStatus: '📦 Статус заказа',
@@ -403,7 +403,7 @@ export const translations: Translations = {
     welcomeChat: '你好！✨ 欢迎来到PureGlowBeauty。我是您的个人美容助手。',
     findTone: '🔍 找到我的理想色调',
     skinConsult: '🌿 零残忍咨询',
-    orderStatus: '📦 订单状态',
+    orderStatus: '📦 订单���态',
     skinRecommend: '💄 肤质推荐'
   },
   ar: {
@@ -503,13 +503,15 @@ export const translations: Translations = {
 export const currencySymbols: Record<Currency, string> = {
   EUR: '€',
   USD: '$',
-  GBP: '£'
+  GBP: '£',
+  CNY: '¥'
 }
 
 export const currencyRates: Record<Currency, number> = {
   EUR: 1,
   USD: 1.08,
-  GBP: 0.86
+  GBP: 0.86,
+  CNY: 7.85
 }
 
 export const languageNames: Record<Language, string> = {
